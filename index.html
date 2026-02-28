@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mortgage Calculator</title>
+
+<style>
+body {
+    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+    margin: 0;
+    background: #f3f4f6;
+}
+
+.container {
+    max-width: 900px;
+    margin: auto;
+    padding: 15px;
+}
+
+h1 {
+    margin-bottom: 15px;
+}
+
+.card {
+    background: white;
+    padding: 15px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    margin-bottom: 20px;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px 15px;
+}
+
+.field {
+    display: flex;
+    flex-direction: column;
+}
+
+.field label {
+    font-size: 13px;
+    margin-bottom: 4px;
+}
+
+.field input {
+    padding: 8px;
+    font-size: 14px;
+    border-radius: 8px;
+    border: 1px solid #d1d5db;
+}
+
+button {
+    width: 100%;
+    padding: 12px;
+    border-radius: 10px;
+    border: none;
+    font-size: 15px;
+    background: linear-gradient(to right, #2563eb, #1d4ed8);
+    color: white;
+    margin-top: 15px;
+    cursor: pointer;
+}
+
+.results-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.result-card {
+    background: white;
+    padding: 15px;
+    border-radius: 12px;
+}
+
+.big-number {
+    font-size: 26px;
+    font-weight: bold;
+    margin: 5px 0 10px 0;
+}
+
+.green-box {
+    background: #dcfce7;
+    padding: 10px;
+    border-radius: 8px;
+    margin-top: 10px;
+    font-size: 14px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>Mortgage Calculator</h1>
+
+<div class="card">
+<div class="grid">
+
+<div class="field">
+<label>Sale</label>
+<input id="sale" type="number" value="310000">
+</div>
+
+<div class="field">
+<label>Down PMT %</label>
+<input id="down" type="number" value="20">
+</div>
+
+<div class="field">
+<label>Rate %</label>
+<input id="rate" type="number" value="6.2">
+</div>
+
+<div class="field">
+<label>Term / Year</label>
+<input id="term" type="number" value="30">
+</div>
+
+<div class="field">
+<label>Taxes / Year</label>
+<input id="taxes" type="number" value="0">
+</div>
+
+<div class="field">
+<label>Insurance / Year</label>
+<input id="insurance" type="number" value="109">
+</div>
+
+<div class="field">
+<label>HOA / Month</label>
+<input id="hoa" type="number" value="1572">
+</div>
+
+<div class="field">
+<label>Extra Monthly PMT</label>
+<input id="extraMonthly" type="number" value="0">
+</div>
+
+<div class="field">
+<label>Extra Bi-Weekly PMT</label>
+<input id="extraBiweekly" type="number" value="0">
+</div>
+
+</div>
+
+<button onclick="calculate()">Calculate</button>
+</div>
+
+<div class="results-grid">
+
+<div class="result-card">
+<h3>Monthly</h3>
+<div class="big-number" id="monthlyPayment">$0</div>
+<div id="monthlyDetails"></div>
+</div>
+
+<div class="result-card">
+<h3>Bi-Weekly</h3>
+<div class="big-number" id="biweeklyPayment">$0</div>
+<div id="biweeklyDetails"></div>
+<div class="green-box" id="savingsBox"></div>
+</div>
+
+</div>
+
+</div>
+
+<script>
+function calculate() {
+
+let sale = parseFloat(document.getElementById("sale").value);
+let downPercent = parseFloat(document.getElementById("down").value) / 100;
+let rate = parseFloat(document.getElementById("rate").value) / 100;
+let term = parseFloat(document.getElementById("term").value);
+let taxes = parseFloat(document.getElementById("taxes").value);
+let insurance = parseFloat(document.getElementById("insurance").value);
+let hoa = parseFloat(document.getElementById("hoa").value);
+let extraMonthly = parseFloat(document.getElementById("extraMonthly").value);
+let extraBiweekly = parseFloat(document.getElementById("extraBiweekly").value);
+
+let loan = sale * (1 - downPercent);
+let monthlyRate = rate / 12;
+let totalMonths = term * 12;
+
+let monthlyPI = loan * (monthlyRate * Math.pow(1 + monthlyRate, totalMonths)) /
+               (Math.pow(1 + monthlyRate, totalMonths) - 1);
+
+let escrow = (taxes / 12) + (insurance / 12) + hoa;
+let monthlyTotal = monthlyPI + escrow;
+
+// Monthly payoff simulation
+let balance = loan;
+let totalInterestMonthly = 0;
+let months = 0;
+
+while (balance > 0 && months < 1000) {
+    let interest = balance * monthlyRate;
+    let principal = monthlyPI - interest + extraMonthly;
+    balance -= principal;
+    totalInterestMonthly += interest;
+    months++;
+    if (balance < 0) balance = 0;
+}
+
+let monthlyYears = Math.floor(months / 12);
+let monthlyRemMonths = months % 12;
+
+// Biweekly simulation
+let biweeklyPayment = monthlyPI / 2;
+let biweeklyRate = rate / 26;
+let balanceBW = loan;
+let totalInterestBW = 0;
+let periods = 0;
+
+while (balanceBW > 0 && periods < 2000) {
+    let interest = balanceBW * biweeklyRate;
+    let principal = biweeklyPayment - interest + extraBiweekly;
+    balanceBW -= principal;
+    totalInterestBW += interest;
+    periods++;
+    if (balanceBW < 0) balanceBW = 0;
+}
+
+let yearsBW = Math.floor(periods / 26);
+let remMonthsBW = Math.floor((periods % 26) / 2);
+
+let interestSavings = totalInterestMonthly - totalInterestBW;
+let yearsSaved = monthlyYears - yearsBW;
+
+// Output
+document.getElementById("monthlyPayment").innerHTML =
+"$" + monthlyTotal.toFixed(2);
+
+document.getElementById("monthlyDetails").innerHTML =
+"Payoff: " + monthlyYears + " yrs " + monthlyRemMonths + " mos<br>" +
+"Total Interest: $" + totalInterestMonthly.toFixed(2);
+
+document.getElementById("biweeklyPayment").innerHTML =
+"$" + (biweeklyPayment + escrow/2).toFixed(2);
+
+document.getElementById("biweeklyDetails").innerHTML =
+"Payoff: " + yearsBW + " yrs " + remMonthsBW + " mos<br>" +
+"Total Interest: $" + totalInterestBW.toFixed(2);
+
+document.getElementById("savingsBox").innerHTML =
+"Interest Savings: $" + interestSavings.toFixed(2) + "<br>" +
+"Years Saved: " + yearsSaved + " yrs";
+}
+</script>
+
+</body>
+</html>
