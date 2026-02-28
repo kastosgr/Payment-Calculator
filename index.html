@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mortgage Calculator</title>
+<script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100 min-h-screen p-4 md:p-8">
+
+<div class="max-w-6xl mx-auto space-y-8">
+
+<h1 class="text-2xl md:text-3xl font-bold">Mortgage Calculator</h1>
+
+<div class="bg-white p-6 md:p-8 rounded-2xl shadow space-y-8">
+
+<!-- Loan Section -->
+<div class="grid md:grid-cols-2 gap-6">
+
+<div class="flex flex-col sm:flex-row gap-3">
+<div class="bg-gray-100 px-4 py-3 rounded-lg text-sm font-medium flex items-center sm:w-36">Sale</div>
+<input id="price" type="text" value="310,000" class="border p-3 rounded-lg flex-1 w-full money-input">
+</div>
+
+<div class="flex flex-col sm:flex-row gap-3">
+<div class="bg-gray-100 px-4 py-3 rounded-lg text-sm font-medium flex items-center sm:w-36">Down PMT %</div>
+<input id="down" type="number" value="20" class="border p-3 rounded-lg flex-1 w-full">
+</div>
+
+<div class="flex flex-col sm:flex-row gap-3">
+<div class="bg-gray-100 px-4 py-3 rounded-lg text-sm font-medium flex items-center sm:w-36">Rate %</div>
+<input id="rate" type="number" value="6.2" class="border p-3 rounded-lg flex-1 w-full">
+</div>
+
+<div class="flex flex-col sm:flex-row gap-3">
+<div class="bg-gray-100 px-4 py-3 rounded-lg text-sm font-medium flex items-center sm:w-36">Term / Year</div>
+<input id="term" type="number" value="30" class="border p-3 rounded-lg flex-1 w-full">
+</div>
+
+</div>
+
+<!-- Escrow -->
+<div class="grid md:grid-cols-2 gap-6">
+
+<div class="flex flex-col sm:flex-row gap-3">
+<select id="taxType" class="border p-3 rounded-lg sm:w-40">
+<option value="year">Taxes / Year</option>
+<option value="month">Taxes / Month</option>
+</select>
+<input id="tax" type="text" value="0" class="border p-3 rounded-lg flex-1 w-full money-input">
+</div>
+
+<div class="flex flex-col sm:flex-row gap-3">
+<select id="insuranceType" class="border p-3 rounded-lg sm:w-40">
+<option value="year">Insurance / Year</option>
+<option value="month">Insurance / Month</option>
+</select>
+<input id="insurance" type="text" value="109" class="border p-3 rounded-lg flex-1 w-full money-input">
+</div>
+
+<div class="flex flex-col sm:flex-row gap-3">
+<select id="hoaType" class="border p-3 rounded-lg sm:w-40">
+<option value="month">HOA / Month</option>
+<option value="year">HOA / Year</option>
+</select>
+<input id="hoa" type="text" value="1,572" class="border p-3 rounded-lg flex-1 w-full money-input">
+</div>
+
+<div class="flex flex-col sm:flex-row gap-3">
+<select id="maintenanceType" class="border p-3 rounded-lg sm:w-40">
+<option value="year">Maintenance / Year</option>
+<option value="month">Maintenance / Month</option>
+</select>
+<input id="maintenance" type="text" value="0" class="border p-3 rounded-lg flex-1 w-full money-input">
+</div>
+
+</div>
+
+<!-- Extra Payments -->
+<div class="grid md:grid-cols-2 gap-6">
+
+<div>
+<label class="text-sm font-medium text-gray-600 block">One‑Time Xtra PMT</label>
+<input id="oneTimeExtra" type="text" value="0" class="border p-3 rounded-lg w-full money-input">
+</div>
+
+<div>
+<label class="text-sm font-medium text-gray-600 block">Extra Monthly PMT</label>
+<input id="extraMonthly" type="text" value="0" class="border p-3 rounded-lg w-full money-input">
+</div>
+
+<div>
+<label class="text-sm font-medium text-gray-600 block">Extra Bi‑Weekly PMT</label>
+<input id="extraBiweekly" type="text" value="0" class="border p-3 rounded-lg w-full money-input">
+</div>
+
+<div>
+<label class="text-sm font-medium text-gray-600 block">One‑Time PMT</label>
+<input id="secondOneTime" type="text" value="0" class="border p-3 rounded-lg w-full money-input">
+</div>
+
+</div>
+
+<button onclick="calculate()" class="w-full bg-blue-600 hover:bg-blue-700 transition text-white py-4 rounded-xl">
+Calculate
+</button>
+
+</div>
+
+<!-- Results -->
+<div id="results" class="hidden grid md:grid-cols-2 gap-6">
+
+<div class="bg-white p-6 rounded-2xl shadow">
+<h2 class="font-semibold mb-3">Monthly</h2>
+<p class="text-2xl md:text-3xl font-bold text-blue-600 mb-4">
+<span id="monthlyPayment"></span>
+</p>
+<p><strong>Payoff:</strong> <span id="monthlyPayoff"></span></p>
+<p><strong>Total Interest:</strong> <span id="monthlyInterest"></span></p>
+</div>
+
+<div class="bg-white p-6 rounded-2xl shadow">
+<h2 class="font-semibold mb-3">Bi‑Weekly</h2>
+<p class="text-2xl md:text-3xl font-bold text-teal-600 mb-4">
+<span id="biweeklyPaymentDisplay"></span>
+</p>
+<p><strong>Payoff:</strong> <span id="biweeklyPayoff"></span></p>
+<p><strong>Total Interest:</strong> <span id="biweeklyInterest"></span></p>
+
+<div class="mt-4 bg-green-100 p-4 rounded-xl text-green-800 font-semibold">
+Interest Savings: <span id="savings"></span><br>
+Years Saved: <span id="yearsSaved"></span>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<script>
+
+// Format money inputs
+document.querySelectorAll(".money-input").forEach(input=>{
+input.addEventListener("input", function(){
+let value=this.value.replace(/,/g,"").replace(/[^\d]/g,"");
+if(value==="") value="0";
+this.value=Number(value).toLocaleString("en-US");
+});
+});
+
+function getNumber(id){
+return +document.getElementById(id).value.replace(/,/g,"") || 0;
+}
+
+function getType(id){return document.getElementById(id).value;}
+function convert(val,type){return type==="year"?val/12:val;}
+function money(x){
+return "$" + x.toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});
+}
+
+function calculate(){
+
+let price=getNumber("price");
+let down=+document.getElementById("down").value/100;
+let rate=+document.getElementById("rate").value/100;
+let term=+document.getElementById("term").value;
+
+let loan=price*(1-down)-getNumber("oneTimeExtra")-getNumber("secondOneTime");
+
+let tax=convert(getNumber("tax"),getType("taxType"));
+let insurance=convert(getNumber("insurance"),getType("insuranceType"));
+let hoa=convert(getNumber("hoa"),getType("hoaType"));
+let maintenance=convert(getNumber("maintenance"),getType("maintenanceType"));
+
+// ===== MONTHLY =====
+let rM=rate/12;
+let nM=term*12;
+
+let baseMonthly=loan*(rM*Math.pow(1+rM,nM))/
+(Math.pow(1+rM,nM)-1);
+
+let monthlyPrincipal=baseMonthly+getNumber("extraMonthly");
+
+let balance=loan;
+let monthlyCount=0;
+let totalInterestMonthly=0;
+
+while(balance>0){
+let interest=balance*rM;
+let payment=Math.min(monthlyPrincipal, balance+interest);
+totalInterestMonthly+=interest;
+balance=balance+interest-payment;
+monthlyCount++;
+}
+
+let fullMonthly=baseMonthly+tax+insurance+hoa+maintenance;
+
+// ===== OPTION B BIWEEKLY (13 PAYMENTS/YEAR MODEL) =====
+let biPrincipal=(baseMonthly/2)+getNumber("extraBiweekly");
+let escrowBi=(tax+insurance+hoa+maintenance)/2;
+let fullBi=biPrincipal+escrowBi;
+
+let balanceBW=loan;
+let biCount=0;
+let totalInterestBW=0;
+
+while(balanceBW>0){
+let interest=balanceBW*(rate/26);
+let payment=Math.min(biPrincipal, balanceBW+interest);
+totalInterestBW+=interest;
+balanceBW=balanceBW+interest-payment;
+biCount++;
+}
+
+function format(p,perYear){
+let y=Math.floor(p/perYear);
+let m=Math.round((p%perYear)/perYear*12);
+return y+" yrs "+m+" mos";
+}
+
+let savings=totalInterestMonthly-totalInterestBW;
+let yearsSaved=(monthlyCount/12)-(biCount/26);
+
+document.getElementById("monthlyPayment").innerText=money(fullMonthly);
+document.getElementById("biweeklyPaymentDisplay").innerText=money(fullBi);
+document.getElementById("monthlyInterest").innerText=money(totalInterestMonthly);
+document.getElementById("biweeklyInterest").innerText=money(totalInterestBW);
+document.getElementById("savings").innerText=money(savings);
+document.getElementById("monthlyPayoff").innerText=format(monthlyCount,12);
+document.getElementById("biweeklyPayoff").innerText=format(biCount,26);
+document.getElementById("yearsSaved").innerText=format(yearsSaved*12,12);
+
+document.getElementById("results").classList.remove("hidden");
+}
+</script>
+
+</body>
+</html>
